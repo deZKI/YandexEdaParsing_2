@@ -11,7 +11,9 @@ ADDRESSES = {
 
 CATEGORIES = {
     'Красота и гигиена': '3374',
-    'Для детей':'21575',
+    'Для детей': '21575',
+    'Овощи и зелень': '1034',
+    'Мясо и птица': '1029',
 }
 class Example(Frame):
     def __init__(self, parent):
@@ -42,16 +44,12 @@ class Example(Frame):
 
         self.font_size = Entry()
         self.font_size.place(x=0, y=130, width=350, height=35)
+        self.font_size.insert(0, '15')
 
-        self.text_root = Label(text='Выберите папку', font="ARIAL 15")
-        self.text_root.place(x=0, y=180, width=350)
-
-        self.root = Entry()
-        self.root.place(x=0, y=210, width=350, height=35)
 
 
         self.btn_create_excel = Button(text='Найти', command=self.create_excel)
-        self.btn_create_excel.place(x=0, y=250, height=50, width=350)
+        self.btn_create_excel.place(x=0, y=170, height=50, width=350)
 
 
     def create_excel(self):
@@ -60,7 +58,6 @@ class Example(Frame):
                                  ADDRESSES[self.clickedAddress.get()],
                                 CATEGORIES[self.clickedCategory.get()],
                                  self.font_size.get(),
-                                 self.root.get()
                         ), daemon=True)
         a.start()
 
@@ -69,7 +66,7 @@ def startapp():
     # get_markers()
     root = Tk()
     root.title('ANTI5.com')
-    root.geometry("350x310+200+200")
+    root.geometry("350x220+200+200")
     root.resizable(False, False)
-    app = Example(root)
+    Example(root)
     root.mainloop()

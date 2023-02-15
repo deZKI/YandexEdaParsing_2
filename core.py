@@ -47,7 +47,7 @@ headers = {
 }
 
 
-def start_search(address='qnolu', category=3374, font_size=15, root=""):
+def start_search(address, category, font_size):
     json_data = {
         'slug': f'pyaterochka_{address}',
         'maxDepth': 200,
@@ -58,45 +58,59 @@ def start_search(address='qnolu', category=3374, font_size=15, root=""):
 
     subcategories, count = json.loads(response.text)['payload'].values()
     name_of_all_category = subcategories[0]["name"]
-    create_excel(name_of_all_category, count,
-                 list(sorted(subcategories[1:], key=lambda x: len(x["items"]), reverse=True)), font_size, root)
+    create_excel(name_of_all_category, count, list(sorted(subcategories[1:], key=lambda x: len(x["items"]), reverse=True)), int(font_size))
+    print()
+
+i = 1
 
 
-def create_excel(name_of_all_category, count, subcategories, font_size, root):
+def create_excel(name_of_all_category, total_count, subcategories, font_size):
     workbook = xlsxwriter.Workbook(f'{name_of_all_category}-{datetime.today()}.xlsx')
-
-
     cell_format_level_1 = workbook.add_format()
     cell_format_level_1.set_font_size(15)
     cell_format_level_1.bold = 1
 
     cell_format_promo = workbook.add_format()
     cell_format_promo.set_bg_color('red')
-    cell_format_promo.set_font_size(15)
+    cell_format_promo.set_font_size(int(font_size))
 
     cell_format_level_2 = workbook.add_format()
-    cell_format_level_2.set_font_size(15)
+    cell_format_level_2.set_font_size(int(font_size))
 
     worksheet = workbook.add_worksheet()
     worksheet.write(0, 0, name_of_all_category, cell_format_level_1)
-    i = 1
+    global i
     for category in subcategories:
         category_name, goods = category["name"], category["items"]
+        worksheet.set_row(i, 30, None, {'level': 1, 'hidden': False})
         worksheet.write(i, 0, category_name, cell_format_level_1)
         i = i + 1
-        for good in goods:
-            worksheet.set_row(i, 30, None, {'level': 2, 'hidden': True})
-            s = good['name'].split(' ')
-            name, count = ' '.join(s[:-1]), s[-1]
-            worksheet.write(i, 0, name, cell_format_level_2)
-            if good.get('promoPrice'):
-                worksheet.write(i, 1, f'Промо!!!!{good["promoPrice"]} ', cell_format_promo)
-            else:
-                worksheet.write(i, 1, good['decimalPrice'], cell_format_level_2)
-
-            worksheet.write(i, 2, good["weight"], cell_format_level_2)
-            worksheet.write(i, 3, count, cell_format_level_2)
-            i = i + 1
-    worksheet.set_column('A:A', 40)
-    worksheet.set_column('B:B', 10)
+        if len(goods) > 5:
+            write_good(goods[:5], worksheet, cell_format_level_2, cell_format_promo, 1)
+            write_good(goods[5:], worksheet, cell_format_level_2, cell_format_promo, 5)
+        else:
+            write_good(goods, worksheet, cell_format_level_2, cell_format_promo, 1)
+    worksheet.set_column('A:A', 40*int(font_size/10))
+    worksheet.set_column('E:E', 40*int(font_size/10))
+    worksheet.set_column('B:D', 10 * int(font_size / 10))
+    worksheet.set_column('F:H', 10 * int(font_size / 10))
+    worksheet.set_row(i, None, None, {'collapsed': True})
+    worksheet.write(i, 0, f'TOtal_{total_count}', cell_format_level_1)
     workbook.close()
+
+
+def write_good(goods, worksheet, cell_format_level_2, cell_format_promo, j):
+    global i
+    for good in goods:
+        worksheet.set_row(i, 30, None, {'level': 2, 'hidden': True})
+        s = good['name'].split(' ')
+        name, count = ' '.join(s[:-1]), s[-1]
+        worksheet.write(i, j, name, cell_format_level_2)
+        if good.get('promoPrice'):
+            worksheet.write(i, j+1, f'Промо!!!!{good["promoPrice"]} ', cell_format_promo)
+        else:
+            worksheet.write(i, j+1, good['decimalPrice'], cell_format_level_2)
+
+        worksheet.write(i, j+2, good["weight"], cell_format_level_2)
+        worksheet.write(i, j+3, count, cell_format_level_2)
+        i = i + 1
