@@ -85,15 +85,10 @@ def create_excel(name_of_all_category, total_count, subcategories, font_size):
         worksheet.set_row(i, 30, None, {'level': 1, 'hidden': False})
         worksheet.write(i, 0, category_name, cell_format_level_1)
         i = i + 1
-        if len(goods) > 5:
-            write_good(goods[:5], worksheet, cell_format_level_2, cell_format_promo, 1)
-            write_good(goods[5:], worksheet, cell_format_level_2, cell_format_promo, 5)
-        else:
-            write_good(goods, worksheet, cell_format_level_2, cell_format_promo, 1)
+        write_good(goods, worksheet, cell_format_level_2, cell_format_promo, 1)
+
     worksheet.set_column('A:A', 40*int(font_size/10))
-    worksheet.set_column('E:E', 40*int(font_size/10))
-    worksheet.set_column('B:D', 10 * int(font_size / 10))
-    worksheet.set_column('F:H', 10 * int(font_size / 10))
+    worksheet.set_column('B:B', 40*int(font_size/10))
     worksheet.set_row(i, None, None, {'collapsed': True})
     worksheet.write(i, 0, f'TOtal_{total_count}', cell_format_level_1)
     workbook.close()
